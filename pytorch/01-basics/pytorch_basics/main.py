@@ -92,7 +92,7 @@ z = y.numpy()
 train_dataset = torchvision.datasets.CIFAR10(root='../../data/', 
 train=True, 
 transform=transforms.ToTensor(),
-download=True)
+download=False)
 
 # Fetch one data pair (read data from disk)
 image, label = train_dataset[0]
@@ -115,28 +115,59 @@ for images, labels in train_loader:
     # Training code should be written here.
     pass
 
+# # ================================================= #
+# #        5. Input pipline for custom dataset        #
+# # ================================================= #
+
+# # You should build your custom dataset as below
+
+# class CustomDataset(torch.utils.data.Dataset):
+#     def __init__(self):
+#         # TODO
+#         # 1. Initialize file paths or a list of file names.
+#         pass
+
+# def __getitem__(self, index):
+#     # TODO
+#     # 1. Read one data from file (e.g. using numpy.fromfile, PIL.Image.open)
+#     # 2. Preprocess the data (e.g. torchvision.Transform)
+#     # 3. Return a data pair (e.g. image and label)
+#     pass
+# def __len__(self):
+#     # You should change 0 to the total size of your dataset.
+#     return 0
+
+# # You can the use the prebuild data loader.
+# custom_dataset = CustomDataset()
+# train_loader = torch.utils.data.DataLoader(dataset=custom_dataset, batch_size=64, shuffle=True)
+
 # ================================================= #
-#        5. Input pipline for custom dataset        #
+#                 6. Pretrained model               #
 # ================================================= #
 
-# You should build your custom dataset as below
+# Download and load the pretrained ResNet-18
+resnet = torchvision.models.resnet18(pretrained=True)
 
-class CustomDataset(torch.utils.data.Dataset):
-    def __init__(self):
-        # TODO
-        # 1. Initialize file paths or a list of file names.
-        pass
+# If you want the finetune only the top layer of model, set as below.
+for param in resnet.parameters():
+    param.requires_grad = False
 
-def __getitem__(self, index):
-    # TODO
-    # 1. Read one data from file (e.g. using numpy.fromfile, PIL.Image.open)
-    # 2. Preprocess the data (e.g. torchvision.Transform)
-    # 3. Return a data pair (e.g. image and label)
-    pass
-def __len__(self):
-    # You should change 0 to the total size of your dataset.
-    return 0
+# Replace the top layer for finetuning
+resnet.fc = nn.Linear(resnet.fc.in_features, 100)
 
-# You can the use the prebuild data loader.
-custom_dataset = CustomDataset()
-train_loader = torch.utils.data.DataLoader(dataset=custom_dataset, batch_size=64, shuffle=True)
+# Foward pass
+images = torch.randn(64, 3, 244, 244)
+outputs = resnet(images)
+print (outputs.size())
+
+# ================================================= #
+#            7. Save and load the model             #
+# ================================================= #
+
+# Save and load the entire model.
+torch.save(resnet, 'model.ckpt')
+model = torch.load('model.ckpt')
+
+# Save and load only the model parameters (recommended)
+torch.save(resnet.state_dict(), 'params.ckpt')
+resnet.load_state_dict(torch.load('params.ckpt'))
