@@ -12,6 +12,8 @@ import torchvision.transforms as transforms
 # ================================================= #
 
 # Create tensors
+# .reqires_grad 속성을 true로 설정하면 그 tenser에서 이뤄진 모든 연산들을
+# 추적 하기 시작한다. 계산이 완료된 후 .backward()를 호출하여 모든 gradient를 자동으로 계산
 x = torch.tensor(1., requires_grad=True)
 w = torch.tensor(2., requires_grad=True)
 b = torch.tensor(3., requires_grad=True)
@@ -71,49 +73,49 @@ pred = linear(x)
 loss = criterion(pred, y)
 print('loss after 1 step optimization: ', loss.item())
 
-# ================================================= #
-#            3. Loading data from numpy             #
-# ================================================= #
+# # ================================================= #
+# #            3. Loading data from numpy             #
+# # ================================================= #
 
-# Create a numpy array.
-x = np.array([[1,2], [3, 4]])
+# # Create a numpy array.
+# x = np.array([[1,2], [3, 4]])
 
-#Convert the numpy array to a torch tensor.
-y = torch.from_numpy(x)
+# #Convert the numpy array to a torch tensor.
+# y = torch.from_numpy(x)
 
-#Convert the numpy array to a numpy array.
-z = y.numpy()
+# #Convert the numpy array to a numpy array.
+# z = y.numpy()
 
-# ================================================= #
-#                  4. Input pipline                 #
-# ================================================= #
+# # ================================================= #
+# #                  4. Input pipline                 #
+# # ================================================= #
 
-# Download and construct CIFAR - 10 dataset.
-train_dataset = torchvision.datasets.CIFAR10(root='../../data/', 
-train=True, 
-transform=transforms.ToTensor(),
-download=False)
+# # Download and construct CIFAR - 10 dataset.
+# train_dataset = torchvision.datasets.CIFAR10(root='../../data/', 
+# train=True, 
+# transform=transforms.ToTensor(),
+# download=False)
 
-# Fetch one data pair (read data from disk)
-image, label = train_dataset[0]
-print (image.size())
-print (label)
+# # Fetch one data pair (read data from disk)
+# image, label = train_dataset[0]
+# print (image.size())
+# print (label)
 
-# Data loader
-train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
-batch_size=64,
-shuffle=True)
+# # Data loader
+# train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
+# batch_size=64,
+# shuffle=True)
 
-# When interation starts, queue and thread start to load data from files.
-data_iter = iter(train_loader)
+# # When interation starts, queue and thread start to load data from files.
+# data_iter = iter(train_loader)
 
-# Mini-batch images and labels.
-images, labels = data_iter.next()
+# # Mini-batch images and labels.
+# images, labels = data_iter.next()
 
-# Actual usage of the data loader is as below
-for images, labels in train_loader:
-    # Training code should be written here.
-    pass
+# # Actual usage of the data loader is as below
+# for images, labels in train_loader:
+#     # Training code should be written here.
+#     pass
 
 # # ================================================= #
 # #        5. Input pipline for custom dataset        #
@@ -141,33 +143,33 @@ for images, labels in train_loader:
 # custom_dataset = CustomDataset()
 # train_loader = torch.utils.data.DataLoader(dataset=custom_dataset, batch_size=64, shuffle=True)
 
-# ================================================= #
-#                 6. Pretrained model               #
-# ================================================= #
+# # ================================================= #
+# #                 6. Pretrained model               #
+# # ================================================= #
 
-# Download and load the pretrained ResNet-18
-resnet = torchvision.models.resnet18(pretrained=True)
+# # Download and load the pretrained ResNet-18
+# resnet = torchvision.models.resnet18(pretrained=True)
 
-# If you want the finetune only the top layer of model, set as below.
-for param in resnet.parameters():
-    param.requires_grad = False
+# # If you want the finetune only the top layer of model, set as below.
+# for param in resnet.parameters():
+#     param.requires_grad = False
 
-# Replace the top layer for finetuning
-resnet.fc = nn.Linear(resnet.fc.in_features, 100)
+# # Replace the top layer for finetuning
+# resnet.fc = nn.Linear(resnet.fc.in_features, 100)
 
-# Foward pass
-images = torch.randn(64, 3, 244, 244)
-outputs = resnet(images)
-print (outputs.size())
+# # Foward pass
+# images = torch.randn(64, 3, 244, 244)
+# outputs = resnet(images)
+# print (outputs.size())
 
-# ================================================= #
-#            7. Save and load the model             #
-# ================================================= #
+# # ================================================= #
+# #            7. Save and load the model             #
+# # ================================================= #
 
-# Save and load the entire model.
-torch.save(resnet, 'model.ckpt')
-model = torch.load('model.ckpt')
+# # Save and load the entire model.
+# torch.save(resnet, 'model.ckpt')
+# model = torch.load('model.ckpt')
 
-# Save and load only the model parameters (recommended)
-torch.save(resnet.state_dict(), 'params.ckpt')
-resnet.load_state_dict(torch.load('params.ckpt'))
+# # Save and load only the model parameters (recommended)
+# torch.save(resnet.state_dict(), 'params.ckpt')
+# resnet.load_state_dict(torch.load('params.ckpt'))
