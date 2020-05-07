@@ -122,3 +122,4 @@ with torch.no_grad():
 
 # Save the model checkpoint
 torch.save(model.state_dict(), 'model.ckpt')
+# check
